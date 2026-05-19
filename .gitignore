@@ -1,0 +1,19 @@
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+.pytest_cache/
+.mypy_cache/
+.ipynb_checkpoints/
+
+# Training outputs and caches
+model_outputs/
+*.safetensors
+*.bin
+
+# OS/editor
+.DS_Store
+Thumbs.db
+.vscode/

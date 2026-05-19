@@ -1,0 +1,57 @@
+services:
+
+  # ── Ollama model server ──────────────────────────────────────────────────────
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434/"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
+  # ── Essay bot (calls the Ollama server via CLI) ──────────────────────────────
+  essay_bot:
+    build: .
+    container_name: essay_bot
+    depends_on:
+      ollama:
+        condition: service_healthy
+    environment:
+      # Point the Ollama CLI to the companion service
+      OLLAMA_HOST: "http://ollama:11434"
+    volumes:
+      - ./model_outputs:/app/model_outputs
+    command: ["python", "essay_bot.py"]
+
+  # ── LoRA fine-tuning job ─────────────────────────────────────────────────────
+  finetune:
+    build: .
+    container_name: finetune
+    volumes:
+      - ./training_data:/app/training_data:ro
+      - ./model_outputs:/app/model_outputs
+    command:
+      - python
+      - finetune_llama_lora.py
+      - --train_file
+      - training_data/train.jsonl
+      - --val_file
+      - training_data/val.jsonl
+      - --output_dir
+      - model_outputs
+    # Uncomment the section below to enable GPU pass-through (requires nvidia-container-toolkit)
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: all
+    #           capabilities: [gpu]
+
+volumes:
+  ollama_data:
