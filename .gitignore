@@ -17,3 +17,6 @@ model_outputs/
 .DS_Store
 Thumbs.db
 .vscode/
+/defects_data.csv
+/training_data
+/model_outputs

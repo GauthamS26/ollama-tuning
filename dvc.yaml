@@ -1,0 +1,19 @@
+stages:
+  prepare_data:
+    cmd: c:/D/Projects/07_Training/Day-2/.venv/Scripts/python.exe 
+      prepare_finetune_data.py --csv defects_data.csv --out_dir training_data
+    deps:
+    - defects_data.csv
+    - prepare_finetune_data.py
+    outs:
+    - training_data
+  train_model:
+    cmd: c:/D/Projects/07_Training/Day-2/.venv/Scripts/python.exe 
+      finetune_llama_lora.py --train_file training_data/train.jsonl --val_file 
+      training_data/val.jsonl --output_dir model_outputs
+    deps:
+    - finetune_llama_lora.py
+    - training_data/train.jsonl
+    - training_data/val.jsonl
+    outs:
+    - model_outputs
